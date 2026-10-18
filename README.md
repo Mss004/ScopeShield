@@ -72,7 +72,7 @@ frontend/
 ```
 
 ## Ekip
-**TripleCore**: Mehmet Salih Sincar (API/entegrasyon), Yusuf AYNA (Gemma/prompt), Mustafa PEKACAR (frontend)
+**TripleCore**: Mehmet Salih SINCAR (API/entegrasyon), Yusuf AYNA (Gemma/prompt), Mustafa PEKACAR (frontend)
 
 ## Lisans
 [MIT](LICENSE)
