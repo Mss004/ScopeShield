@@ -71,15 +71,6 @@ frontend/
   index.html, style.css, app.js
 ```
 
-## Bilinen sınırlar
-Kullanıcı girişi, otomatik mesaj gönderme, ücret/süre tahmini, WhatsApp/e-posta entegrasyonu, veritabanı ve gerçek zamanlı işbirliği bu sürümde yoktur. Model çıktısı bir hukuki danışmanlık değildir; sonuçlar kullanıcı tarafından kontrol edilmelidir.
-
-## GitHub Copilot kullanımı
-<!-- TAKIM DOLDURACAK: Copilot'un hangi işlerde kullanıldığını gerçeğe uygun şekilde yazın. -->
-- Backend (Salih): _doldurulacak_
-- Prompt ve model entegrasyonu (Yusuf): _doldurulacak_
-- Frontend (Mustafa): _doldurulacak_
-
 ## Ekip
 **TripleCore**: Mehmet Salih Sincar (API/entegrasyon), Yusuf Ayna (Gemma/prompt), Mustafa Pekacar (frontend)
 
