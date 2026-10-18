@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ScopeShield — Freelancer Kapsam Zırhı</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Toast Bildirim Alanı -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Ana Uygulama Düzeni -->
+  <div class="app-layout">
+
+    <!-- SOL KENAR ÇUBUĞU (MÜŞTERİ & PROJE YÖNETİMİ) -->
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            <path d="m9 12 2 2 4-4"/>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <h2>ScopeShield</h2>
+          <span>Freelancer Kapsam Zırhı</span>
+        </div>
+      </div>
+
+      <div class="sidebar-action">
+        <button id="btn-open-new-client" class="btn btn-primary btn-block">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+          Yeni Müşteri / Proje
+        </button>
+      </div>
+
+      <div class="client-section-header">
+        <span>MÜŞTERİLERİM & PROJELER</span>
+        <span id="client-count" class="counter-badge">0</span>
+      </div>
+
+      <!-- Müşteri Listesi -->
+      <div id="client-list" class="client-list">
+        <!-- JavaScript ile dinamik müşteri kartları basılacak -->
+      </div>
+
+      <!-- Kenar Çubuğu Alt Bilgi / Bağlantı Durumu -->
+      <div class="sidebar-footer">
+        <div class="connection-status" id="connection-status">
+          <span class="status-dot status-offline" id="status-dot"></span>
+          <div class="status-info">
+            <span class="status-title" id="status-text">Backend: Kontrol ediliyor...</span>
+            <span class="status-sub" id="status-model">Gemma 4 / Ollama</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- SAĞ ANA ÇALIŞMA ALANI -->
+    <main class="main-content">
+
+      <!-- ÜST BAŞLIK ÇUBUĞU (TOPBAR) -->
+      <header class="topbar">
+        <div class="active-client-info">
+          <div class="client-avatar" id="topbar-avatar">AY</div>
+          <div>
+            <div class="client-title-row">
+              <h1 id="topbar-client-name">Seçili Müşteri Yok</h1>
+              <span id="topbar-scope-badge" class="badge badge-gray">Kapsamsız</span>
+            </div>
+            <p id="topbar-project-name" class="client-subtitle">Lütfen sol taraftan bir müşteri seçin veya yeni oluşturun</p>
+          </div>
+        </div>
+
+        <div class="topbar-actions">
+          <!-- Tema Değiştirme Butonu (Açık / Koyu) -->
+          <button id="btn-theme-toggle" class="btn btn-theme" title="Açık / Koyu Tema Değiştir">
+            <span class="theme-icon theme-icon-moon">🌙</span>
+            <span class="theme-icon theme-icon-sun" style="display:none;">☀️</span>
+            <span id="theme-text">Koyu</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- DİKKAT: OLLAMA HATASI UYARI BANDI -->
+      <div id="ollama-offline-banner" class="status-alert-banner banner-danger" style="display:none;">
+        <span class="banner-icon">🚨</span>
+        <span class="banner-text"><strong>OLLAMA SERVİSİ KAPALI!</strong> — FastAPI backend (8000) çalışıyor ancak Ollama bağlantısı kurulamadı. Lütfen terminalde <code>ollama serve</code> çalıştırın.</span>
+      </div>
+
+      <!-- ADIM / SEKME GEÇİŞLERİ -->
+      <nav class="tabs-nav">
+        <button class="tab-btn active" data-tab="1">
+          <span class="tab-step">1</span>
+          <span class="tab-label">Kapsam Çıkar & Onayla</span>
+          <span id="tab1-status" class="tab-indicator indicator-empty"></span>
+        </button>
+        <button class="tab-btn" data-tab="2">
+          <span class="tab-step">2</span>
+          <span class="tab-label">Yeni Talebi Analiz Et</span>
+          <span id="tab2-status" class="tab-indicator indicator-empty"></span>
+        </button>
+        <button class="tab-btn" data-tab="3">
+          <span class="tab-step">3</span>
+          <span class="tab-label">Akıllı Yanıt Taslağı</span>
+          <span id="tab3-status" class="tab-indicator indicator-empty"></span>
+        </button>
+      </nav>
+
+      <!-- ÇALIŞMA ALANI İÇERİĞİ -->
+      <div class="tab-content-wrapper">
+
+        <!-- ========================================================
+             SEKME 1: KAPSAM ÇIKARMA & ONAYLAMA
+             ======================================================== -->
+        <section id="tab-pane-1" class="tab-pane active">
+          
+          <div class="card intro-card">
+            <div class="intro-icon">📋</div>
+            <div class="intro-content">
+              <h3>Müşteriyle Anlaşılan İlk Kapsamı Belirleyin</h3>
+              <p>Müşterinizle e-posta, WhatsApp veya sözleşmede konuştuğunuz ilk iş tanımını yapıştırın. Gemma modeli teslimatları, nelerin dahil olup olmadığını ve revizyon sınırlarını sizin için ayıklar.</p>
+            </div>
+          </div>
+
+          <div class="grid-2-col">
+            <!-- Sol: Metin Girişi -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
+                  İlk Anlaşma / Teklif Metni
+                </div>
+              </div>
+
+              <div class="form-group">
+                <textarea id="scope-raw-text" class="form-control" rows="12" placeholder="Örnek: Beş sayfalık kurumsal tanıtım sitesi hazırlanacak. Mobil uyumluluk ve iletişim formu dahil. Üyelik sistemi ve e-ticaret kesinlikle dahil değildir..."></textarea>
+              </div>
+
+              <div class="action-bar">
+                <button id="btn-extract-scope" class="btn btn-primary btn-lg">
+                  <span class="btn-spinner" style="display:none;"></span>
+                  <svg class="btn-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
+                  <span class="btn-text">Gemma 4 ile Kapsamı Çıkar</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Sağ: Ayıklanan & Düzenlenebilir Kapsam Kartı -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="m9 12 2 2 4-4"/></svg>
+                  Yapılandırılmış Kapsam Kartı
+                </div>
+                <span id="scope-status-tag" class="badge badge-gray">Henüz Çıkarılmadı</span>
+              </div>
+
+              <!-- Henüz kapsam yokken boş durum -->
+              <div id="scope-empty-placeholder" class="empty-state">
+                <div class="empty-icon">🛡️</div>
+                <p>Sol taraftaki metni girip <strong>"Gemma 4 ile Kapsamı Çıkar"</strong> butonuna basın veya yukarıdaki <strong>"⚡ Örnek Doldur"</strong> seçeneğini deneyin.</p>
+              </div>
+
+              <!-- Kapsam Çıkarıldığında Görünen Düzenlenebilir Form -->
+              <div id="scope-editor-container" style="display: none;" class="scope-editor">
+                
+                <div class="form-group">
+                  <label class="form-label">🎯 Teslim Edilecek Temel Çıktılar (Deliverables)</label>
+                  <div id="list-deliverables" class="tag-input-group"></div>
+                  <div class="add-tag-row">
+                    <input type="text" id="input-new-deliverable" class="form-control form-control-sm" placeholder="+ Yeni teslimat çıktısı ekle">
+                    <button class="btn btn-sm btn-secondary" onclick="addTagFromInput('deliverables')">Ekle</button>
+                  </div>
+                </div>
+
+                <div class="grid-2-col-tight">
+                  <div class="form-group">
+                    <label class="form-label text-success">✅ Kapsama Dahil Olanlar (Included)</label>
+                    <div id="list-included" class="tag-input-group"></div>
+                    <div class="add-tag-row">
+                      <input type="text" id="input-new-included" class="form-control form-control-sm" placeholder="+ Dahil özellik ekle">
+                      <button class="btn btn-sm btn-secondary" onclick="addTagFromInput('included')">Ekle</button>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-label text-danger">🚫 Kapsam Dışı / Hariç (Excluded)</label>
+                    <div id="list-excluded" class="tag-input-group"></div>
+                    <div class="add-tag-row">
+                      <input type="text" id="input-new-excluded" class="form-control form-control-sm" placeholder="+ Hariç özellik ekle">
+                      <button class="btn btn-sm btn-secondary" onclick="addTagFromInput('excluded')">Ekle</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="grid-2-col-tight">
+                  <div class="form-group">
+                    <label class="form-label">👤 Müşteri Sorumlulukları</label>
+                    <div id="list-client_responsibilities" class="tag-input-group"></div>
+                    <div class="add-tag-row">
+                      <input type="text" id="input-new-client_responsibilities" class="form-control form-control-sm" placeholder="+ Sorumluluk ekle">
+                      <button class="btn btn-sm btn-secondary" onclick="addTagFromInput('client_responsibilities')">Ekle</button>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-label">🔄 Revizyon Sınırı</label>
+                    <input type="text" id="input-revisions" class="form-control" placeholder="Örn: 2 tur görsel revizyon">
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label text-warning">⚠️ Belirsiz / Riskli Noktalar</label>
+                  <div id="list-ambiguities" class="tag-input-group"></div>
+                  <div class="add-tag-row">
+                    <input type="text" id="input-new-ambiguities" class="form-control form-control-sm" placeholder="+ Belirsizlik ekle">
+                    <button class="btn btn-sm btn-secondary" onclick="addTagFromInput('ambiguities')">Ekle</button>
+                  </div>
+                </div>
+
+                <div class="card-footer-action">
+                  <button id="btn-approve-scope" class="btn btn-success btn-lg btn-block">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                    Kapsamı Onayla ve Bu Müşteriye Kaydet
+                  </button>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </section>
+
+
+        <!-- ========================================================
+             SEKME 2: YENİ TALEP ANALİZİ
+             ======================================================== -->
+        <section id="tab-pane-2" class="tab-pane">
+
+          <!-- Kapsam Özeti Bilgi Şeridi -->
+          <div class="card scope-summary-bar">
+            <div class="summary-left">
+              <span class="summary-icon">🛡️</span>
+              <div>
+                <strong>Aktif Referans Kapsam:</strong> <span id="summary-scope-title">Ahmet Yılmaz — Kurumsal Tanıtım Sitesi</span>
+                <div class="summary-meta" id="summary-scope-details">Teslimatlar, dahil ve hariç maddeler yüklendi.</div>
+              </div>
+            </div>
+            <button class="btn btn-sm btn-secondary" onclick="switchTab(1)">Kapsamı Düzenle</button>
+          </div>
+
+          <!-- Kapsam Henüz Onaylanmadıysa Çıkacak Uyarı -->
+          <div id="tab2-no-scope-warning" class="alert alert-warning" style="display:none;">
+            <strong>⚠️ Dikkat:</strong> Bu müşteri için henüz onaylanmış bir kapsam kartı yok. Analiz yapabilmek için lütfen önce <a href="javascript:void(0)" onclick="switchTab(1)">1. Sekme'den Kapsam Oluşturun</a>.
+          </div>
+
+          <!-- Talep Girişi -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                Müşteriden Gelen Yeni Mesaj / İstek
+              </div>
+            </div>
+
+            <div class="form-group">
+              <textarea id="request-raw-text" class="form-control" rows="4" placeholder="Müşterinin WhatsApp veya e-postadan gönderdiği yeni istek mesajını buraya yapıştırın..."></textarea>
+            </div>
+
+            <div class="action-bar">
+              <button id="btn-compare-request" class="btn btn-primary btn-lg">
+                <span class="btn-spinner" style="display:none;"></span>
+                <svg class="btn-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                <span class="btn-text">Talepleri Kapsamla Karşılaştır & Analiz Et</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Analiz Sonuç Kartları -->
+          <div id="analysis-results-section" style="display:none;" class="analysis-section">
+            <div class="section-title-row">
+              <h3>Gemma 4 Analiz Sonuçları</h3>
+              <span id="analysis-count-badge" class="badge badge-primary">2 Talep Tespit Edildi</span>
+            </div>
+
+            <div id="analysis-items-container" class="analysis-grid">
+              <!-- Dinamik sonuç kartları buraya gelecek -->
+            </div>
+
+            <div class="next-step-bar">
+              <button id="btn-proceed-to-reply" class="btn btn-magic btn-lg">
+                <span>Bu Sonuçlarla Akıllı Yanıt Taslağı Hazırla</span>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- MÜŞTERİ ZAMAN TÜNELİ & TALEP GEÇMİŞİ (YENİ) -->
+          <div class="card history-timeline-card">
+            <div class="card-header">
+              <div class="card-title">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                Müşteri Mesaj & Analiz Zaman Tüneli
+              </div>
+              <span id="history-count-badge" class="badge badge-gray">0 Kayıt</span>
+            </div>
+            <p class="history-card-subtitle">Bu müşteriden gelen tüm eski talepler, yapılan analizler ve gönderilen yanıtlar burada kronolojik olarak saklanır.</p>
+            <div id="customer-timeline-list" class="timeline-list">
+              <!-- JS ile dinamik geçmiş basılacak -->
+            </div>
+          </div>
+
+        </section>
+
+
+        <!-- ========================================================
+             SEKME 3: YANIT TASLAĞI
+             ======================================================== -->
+        <section id="tab-pane-3" class="tab-pane">
+
+          <div class="card intro-card">
+            <div class="intro-icon">✍️</div>
+            <div class="intro-content">
+              <h3>Müşteriye Gönderilecek Profesyonel Yanıt Taslağı</h3>
+              <p>Araç müşterinizle kavga etmez veya fiyat dayatmaz. Kapsam içi olanları olumlu karşılar, ek işleri kibarca ayrı değerlendirmeye yönlendirir ve belirsiz noktaları netleştirmek için sorular yöneltir.</p>
+            </div>
+          </div>
+
+          <div class="grid-2-col">
+            <!-- Sol: Üslup Seçimi ve Özet -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">Yanıt Ayarları & Özet</div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">İletişim Üslubu</label>
+                <div class="radio-group">
+                  <label class="radio-card active" id="label-style-prof">
+                    <input type="radio" name="reply-style" value="professional" checked>
+                    <div class="radio-content">
+                      <span class="radio-title">👔 Profesyonel & Resmi</span>
+                      <span class="radio-desc">Kurumsal müşteriler, ajanslar ve resmi iş yazışmaları için.</span>
+                    </div>
+                  </label>
+
+                  <label class="radio-card" id="label-style-friendly">
+                    <input type="radio" name="reply-style" value="friendly">
+                    <div class="radio-content">
+                      <span class="radio-title">☕ Samimi & Dostane</span>
+                      <span class="radio-desc">Yakın çalıştığınız müşteriler ve dinamik girişimciler için.</span>
+                    </div>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Dahil edilen analiz maddelerinin ufak listesi -->
+              <div class="form-group">
+                <label class="form-label">Yanıta Esas Alınan Analiz Maddeleri</label>
+                <div id="reply-basis-summary" class="mini-summary-box">
+                  <!-- JS dolduracak -->
+                </div>
+              </div>
+
+              <button id="btn-generate-reply" class="btn btn-primary btn-block btn-lg">
+                <span class="btn-spinner" style="display:none;"></span>
+                <svg class="btn-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
+                <span class="btn-text">Gemma 4 ile Yanıt Taslağı Üret</span>
+              </button>
+            </div>
+
+            <!-- Sağ: Üretilen Yanıt Metni -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">Müşteri Mesajı Taslağı</div>
+                <div class="header-action-group">
+                  <button id="btn-save-reply-history" class="btn btn-sm btn-secondary" title="Bu yanıtı müşterinin zaman tüneline kalıcı olarak kaydet">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                    Zaman Tüneline Kaydet
+                  </button>
+                  <button id="btn-copy-reply" class="btn btn-sm btn-success">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                    <span id="copy-btn-text">Panoya Kopyala</span>
+                  </button>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <textarea id="reply-draft-text" class="form-control font-readable" rows="14" placeholder="Yanıt taslağı burada oluşturulacak. İstediğiniz gibi düzenleyebilir ve tek tıkla kopyalayabilirsiniz..."></textarea>
+              </div>
+
+              <div class="reply-tips">
+                💡 <strong>İpucu:</strong> Mesajı göndermeden önce projenize özel detayları kontrol edebilir, gerekli yerleri düzenleyebilirsiniz.
+              </div>
+            </div>
+          </div>
+
+        </section>
+
+      </div>
+    </main>
+
+  </div>
+
+  <!-- YENİ MÜŞTERİ EKLEME MODALI -->
+  <div id="modal-new-client" class="modal-backdrop" style="display:none;">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Yeni Müşteri & Proje Ekle</h3>
+        <button class="btn-close" onclick="closeNewClientModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Müşteri / Şirket Adı</label>
+          <input type="text" id="modal-input-name" class="form-control" placeholder="Örn: Ahmet Yılmaz veya ABC Teknoloji">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Proje Tanımı</label>
+          <input type="text" id="modal-input-project" class="form-control" placeholder="Örn: Kurumsal Tanıtım Sitesi">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeNewClientModal()">Vazgeç</button>
+        <button id="btn-save-new-client" class="btn btn-primary">Kaydet & Başla</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
