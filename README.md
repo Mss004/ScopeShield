@@ -81,7 +81,7 @@ Kullanıcı girişi, otomatik mesaj gönderme, ücret/süre tahmini, WhatsApp/e-
 - Frontend (Mustafa): _doldurulacak_
 
 ## Ekip
-**TripleCore**: Mehmey Salih Sincar (API/entegrasyon), Yusuf Ayna (Gemma/prompt), Mustafa Pekacar (frontend)
+**TripleCore**: Mehmet Salih Sincar (API/entegrasyon), Yusuf Ayna (Gemma/prompt), Mustafa Pekacar (frontend)
 
 ## Lisans
 [MIT](LICENSE)
